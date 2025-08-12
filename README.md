@@ -84,13 +84,11 @@
 
 <br/>
 
-### Dependencies
-Package Name        |
-:-------------------------|
-|[OpenCV](https://pypi.org/project/opencv-python/) 
-|[NumPy](https://pub.dev/packages/provider) 
-|[openpyxl](https://pub.dev/packages/audioplayers)
-|[Tkinter](https://pub.dev/packages/path_provider)
-|[Pillow](https://pub.dev/packages/permission_handler)
+### Libraries
+[OpenCV](https://pypi.org/project/opencv-python/) 
+[NumPy](https://pub.dev/packages/provider) 
+[openpyxl](https://pub.dev/packages/audioplayers)
+[Tkinter](https://pub.dev/packages/path_provider)
+[Pillow](https://pub.dev/packages/permission_handler)
 
 <br/>
