@@ -242,25 +242,6 @@ def processImages(filepath):
     # cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def upload_images():
-    global uploaded_images
-    file_paths = filedialog.askopenfilenames(
-        filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")],
-        title="Choose images to upload"
-    )
-    for file_path in file_paths:
-        image = Image.open(file_path)
-        image.thumbnail((100, 100))  # Resize the image to a thumbnail
-        uploaded_images.append((file_path, image))
-
-    if uploaded_images:
-        result_text = "Images uploaded successfully!"
-        result_label.config(text=result_text)
-    else:
-        result_label.config(text="No images uploaded yet.")
-
-
-
 def print_result():
     global uploaded_images
     if uploaded_images:
@@ -309,8 +290,54 @@ def rounded_button(parent, text, command):
     button.pack(pady=10)
     return button
 
+
+def upload_images():
+    global uploaded_images
+    global thumbnail_images
+    file_paths = filedialog.askopenfilenames(
+        filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")],
+        title="Choose images to upload"
+    )
+    for file_path in file_paths:
+        image = Image.open(file_path)
+        image.thumbnail((100, 100))  # Resize the image to a thumbnail
+        uploaded_images.append((file_path, image))
+        thumbnail_images.append(ImageTk.PhotoImage(image))
+
+    if uploaded_images:
+        result_text = "Images uploaded successfully!"
+        result_label.config(text=result_text)
+    else:
+        result_label.config(text="No images uploaded yet.")
+    show_images()
+
+
+
+
+
+def show_images():
+    # Clear previous thumbnails
+    for widget in image_frame.winfo_children():
+        widget.destroy()
+
+    # Display thumbnails
+    for img_tk in thumbnail_images:
+        label = tk.Label(image_frame, image=img_tk, bg="#1E8F91")
+        label.pack(side=tk.LEFT, padx=10, pady=10)
+
+    # Update the scroll region to include all widgets in the image_frame
+    image_frame.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+def on_mouse_wheel(event):
+    if event.delta:
+        canvas.xview_scroll(int(-1*(event.delta/120)), "units")  # For Windows and MacOS
+    else:
+        canvas.xview_scroll(-1 if event.num == 5 else 1, "units")  # For Linux
+
 if __name__ == "__main__":
     uploaded_images = []
+    thumbnail_images = []
 
     root = tk.Tk()
     root.title("Optical Mark Recognition")
@@ -334,6 +361,27 @@ if __name__ == "__main__":
                             font=("Helvetica", 14), fg="#ffffff")
     result_label.pack(pady=20, fill=tk.BOTH, expand=True)
 
-    frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    # Create a scrollable frame to display images
+    canvas = tk.Canvas(frame, bg="#1E8F91")
+    scrollbar = tk.Scrollbar(frame, orient=tk.HORIZONTAL, command=canvas.xview)
+    canvas.configure(xscrollcommand=scrollbar.set)
+
+    scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+    canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    # Create a frame within the canvas to hold the images
+    image_frame = tk.Frame(canvas, bg="#1E8F91")
+    canvas.create_window((0, 0), window=image_frame, anchor="nw")
+
+    # Bind the frame to the canvas, and configure the canvas to adjust the scroll region
+    image_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    # Bind mouse wheel to the canvas for scrolling
+    canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # Windows and MacOS
+    canvas.bind_all("<Button-4>", on_mouse_wheel)  # Linux (scroll up)
+    canvas.bind_all("<Button-5>", on_mouse_wheel)  # Linux (scroll down)
 
     root.mainloop()
