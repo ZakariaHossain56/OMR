@@ -1,5 +1,6 @@
 
 ## OMR
+A straightforward app to scan and read marked answers and evaluate result.
 
 ### Project Features
 - Multiple image upload.
